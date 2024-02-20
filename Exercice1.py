@@ -4,6 +4,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 import timeit
 
+def polynome(coefficients,x):
+    somme=0
+    for i in range (len(coefficients)):
+        somme = somme+coefficients[i]*x**i
+    return somme
+
+def integrale_polynome(coefficients,borne_a,borne_b):
+    coefficient_primitive=[]
+    somme = 0
+    coefficient_primitive.append(0)
+    for i in range (len(coefficients)):
+        coefficient_primitive.append(1/(i+1)*coefficients[i])
+
+    integrale= polynome(coefficient_primitive,borne_b)-polynome(coefficient_primitive,borne_a)
+    return integrale
+
 def solve_integration_numpy(p1=0, p2=0, p3=0, p4=0, debut=0, fin=10**10, n=100):
     start = timeit.default_timer()
     x = np.linspace(debut, fin, n)
@@ -55,5 +71,8 @@ def afficher_erreur(p1=0, p2=0, p3=0, p4=0, debut=0, fin=1):
     plt.show()
     print(erreur)
 
-
+coefficients=[1,1,6,5]
+valeur= polynome(coefficients,0)
+intregral_valeur=integrale_polynome(coefficients,0,1)
+print(valeur,"\t",intregral_valeur)
 afficher_erreur(1,1,6,5,0,10)
