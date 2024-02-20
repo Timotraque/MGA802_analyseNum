@@ -29,8 +29,31 @@ def solve_integration_square(p1=0, p2=0, p3=0, p4=0, debut=0, fin=1, n=100):
 
     return integration, timeit.default_timer() - start
 
-resultat_np = solve_integration_numpy(0,1,0,0,0,100,1000)
-print(f"Résultat de l'intégrale : {resultat_np[0]}\ntemps = {resultat_np[1]}")
 
-resultat_sqr = solve_integration_square(0,1,0,0,0,100,10)
-print(f"Résultat de l'intégrale : {resultat_sqr[0]}\ntemps = {resultat_sqr[1]}")
+def calcul_erreur(p1=0, p2=0, p3=0, p4=0, debut=0, fin=1, n=100):
+    val_sqr, temps_sqr = solve_integration_square(p1, p2, p3, p4, debut, fin, n)
+    val_numpy, temps_numpy = solve_integration_numpy(p1, p2, p3, p4, debut, fin, n)
+    if val_sqr > val_numpy:
+        erreur = val_sqr-val_numpy
+    elif val_sqr <= val_numpy:
+        erreur = val_sqr - val_numpy
+    return erreur, temps_sqr - temps_numpy
+
+
+def afficher_erreur(p1=0, p2=0, p3=0, p4=0, debut=0, fin=1):
+    n = np.linspace(10,1000,100, dtype=int)
+    erreur=[]
+    temps=[]
+    for j in range(100):
+        resultat = calcul_erreur(p1, p2, p3, p4, debut, fin, n[j])
+        erreur.append(resultat[0])
+        temps.append(resultat[1])
+    plt.plot(n, erreur)
+    plt.xlabel("n")
+    plt.ylabel("erreur")
+    plt.title("Evolution de l'erreur en fonction de n")
+    plt.show()
+    print(erreur)
+
+
+afficher_erreur(1,1,6,5,0,10)
