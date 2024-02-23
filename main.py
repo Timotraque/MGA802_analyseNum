@@ -52,9 +52,10 @@ def calcul_RHS(temperature, longueur, largeur, x0, y0, xx, yy, k, dt):
 
 
 def calcul_T(grille_RHS, ancien_T, dt, longueur, largeur):
-    for x in range( longueur ):
-        for y in range(largeur ):
-            t_n1[x,y] = ancien_T[x,y] + dt * grille_RHS[x,y]
+    t_n1 = ancien_T
+    for x in range(longueur):
+        for y in range(largeur):
+            t_n1[x, y] = ancien_T[x, y] + dt * grille_RHS[x, y]
     return t_n1
 
 longueur = 10
@@ -72,7 +73,7 @@ dt = 0.01 #s
 xx, yy = creer_grille(longueur, largeur, n_x, n_y)
 temp = calcul_intial(x0,y0, xx, yy, 200, 0.1)
 RHS = calcul_RHS(temp, longueur, largeur, x0, y0, xx, yy, k, dt)
-
+nouveau_temp = calcul_T(RHS,temp,dt,longueur,largeur)
 import pdb; pdb.set_trace()
 
 #afficher_grid(x, y, temp)
