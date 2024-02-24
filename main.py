@@ -12,10 +12,9 @@ def creer_grille(longueur, largeur, delta_x, delta_y):
 
 
 def calcul_intial(x0, y0, xx, yy, A, sigma):
-    delta_t = np.ndarray
-    delta_t = A * np.exp(-(np.power(xx - x0, 2)/(2 * np.power(sigma,2)) + np.power(yy - y0, 2)/(2 * np.power(sigma, 2))))
+    delta_temp = A * np.exp(-(np.power(xx - x0, 2)/(2 * np.power(sigma,2)) + np.power(yy - y0, 2)/(2 * np.power(sigma, 2))))
     #import pdb; pdb.set_trace()
-    return delta_t
+    return delta_temp
 
 
 def afficher_grid(longueur, largeur, delta_t):
@@ -25,7 +24,7 @@ def afficher_grid(longueur, largeur, delta_t):
     plt.show()
 
 
-def calcul_RHS(RHS,temperature, longueur, largeur, k, delta_x, delta_y):
+def calcul_RHS(RHS, temperature, longueur, largeur, k, delta_x, delta_y):
     # On suppose que delta_x = delta_y
     #Pour avoir la même forme et le même type de variables
 
@@ -36,12 +35,11 @@ def calcul_RHS(RHS,temperature, longueur, largeur, k, delta_x, delta_y):
     RHS[:, longueur - 1] = 0
 
     # Parcours toute la grille
-    for x in range(1, longueur - 1):
-        for y in range(1, largeur - 1):
-
+    for x in range(1, int(longueur/delta_x)-1):
+        for y in range(1, int(largeur/delta_y)-1):
             # Calcul le nouvel RHS
-            RHS[x,y] = k * ((temperature[x + 1, y] - 2 * temperature[x, y] + temperature[x - 1, y])/(np.power(delta_x, 2)) +
-                    (temperature[x, y + 1] - 2 * temperature[x, y] + temperature[x, y - 1])/(np.power(delta_y, 2)))
+            RHS[x, y] = k * ((temperature[x + 1, y] - 2 * temperature[x, y] + temperature[x - 1, y])/(np.power(delta_x, 2)) + (temperature[x, y + 1] - 2 * temperature[x, y] + temperature[x, y - 1])/(np.power(delta_y, 2)))
+
             if RHS[x, y] < 1:
                 RHS[x, y] = 0
 
@@ -99,16 +97,20 @@ for counter in range(len(boucle_tempo)):
     nouveau_temp = calcul_T(RHS, temp, dt, n_x, n_y)
     temp = nouveau_temp
     list_of_events.append(nouveau_temp)"""
-grille1 = creer_grille(1,1,0.5,0.5)
-grille2 = grille1
 
-print(grille1)
-print(grille2)
-temp = calcul_intial(x0, y0, xx, yy, amplitude, 0.1)
-#afficher_grid(x, y, temp)
-RHS = creer_grille(longueur, largeur, delta_x, delta_y)
+
+
+
+RHS = np.ndarray(shape=(int(longueur/delta_x), int(largeur/delta_y)), dtype=float)
+temp = np.ndarray(shape=(int(longueur/delta_x), int(largeur/delta_y)), dtype=float)
+
+delta_temp = calcul_intial(x0, y0, xx, yy, amplitude, 0.1)
+temp = temp + delta_temp
+
+
 for i in range(1000):
-    RHS = calcul_RHS(RHS,temp,longueur, largeur, k, delta_x, delta_y)
+    RHS = calcul_RHS(RHS, temp, longueur, largeur, k, delta_x, delta_y)
+    #afficher_grid(x,y,RHS)
     nouveau_temp = calcul_T(RHS, temp, dt, n_x, n_y)
     temp = nouveau_temp
 
