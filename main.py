@@ -3,9 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def creer_grille(x, y, n_x, n_y):
-    x = np.linspace(0, longueur, n_x)
-    y = np.linspace(0, largeur, n_y)
+def creer_grille(longueur, largeur, delta_x, delta_y):
+    x = np.arange(0, longueur, delta_x)
+    y = np.arange(0, largeur, delta_y)
     xx, yy = np.meshgrid(x, y)
 
     return xx,yy
@@ -25,29 +25,34 @@ def afficher_grid(longueur, largeur, delta_t):
     plt.show()
 
 
-def calcul_RHS(temperature, longueur, largeur, x0, y0, xx, yy, k, dt):
-    f0 = 0.25
-    delta_x = int(k * dt / f0)
-    delta_y = delta_x
+def calcul_RHS(RHS,temperature, longueur, largeur, k, delta_x, delta_y):
     # On suppose que delta_x = delta_y
-
-    RHS = temperature   #Pour avoir la même forme et le même type de variables
+    #Pour avoir la même forme et le même type de variables
 
     # Aux limites du domaine le RHS vaut 0
-    RHS[0,:] = 0
+    RHS[0, :] = 0
     RHS[:, largeur - 1] = 0
-    RHS[:,0] = 0
+    RHS[:, 0] = 0
     RHS[:, longueur - 1] = 0
 
     # Parcours toute la grille
-    for x in range(1, longueur-1):
-        for y in range(1, largeur-1):
+    for x in range(1, longueur - 1):
+        for y in range(1, largeur - 1):
 
             # Calcul le nouvel RHS
-            RHS[x,y] = k * ((temperature[x + delta_x, y] - 2 * temperature[x, y] + temperature[x - delta_x, y])/(np.power(delta_x, 2)) +
-                    (temperature[x, y + delta_y] - 2 * temperature[x, y] + temperature[x, y - delta_y])/(np.power(delta_y, 2)))
+            RHS[x,y] = k * ((temperature[x + 1, y] - 2 * temperature[x, y] + temperature[x - 1, y])/(np.power(delta_x, 2)) +
+                    (temperature[x, y + 1] - 2 * temperature[x, y] + temperature[x, y - 1])/(np.power(delta_y, 2)))
+            if RHS[x, y] < 1:
+                RHS[x, y] = 0
+
+    # Force les limites a nouveau
+    RHS[0, :] = 0
+    RHS[:, largeur - 1] = 0
+    RHS[:, 0] = 0
+    RHS[:, longueur - 1] = 0
 
     # Renvoie une grille contenant tous les RHS
+
     return RHS
 
 
@@ -56,25 +61,56 @@ def calcul_T(grille_RHS, ancien_T, dt, longueur, largeur):
     for x in range(longueur):
         for y in range(largeur):
             t_n1[x, y] = ancien_T[x, y] + dt * grille_RHS[x, y]
+            if t_n1[x,y] < 1:
+                t_n1[x,y] = 0
+
     return t_n1
 
-longueur = 10
-largeur = 10
+
+longueur = 1    #[m]
+largeur = 1     #[m]
+x0 = 0.1
+y0 = 0.1
+k = 98.8 * 10**(-6)     # [m²/s] Diffusivité thermique pour l'Aluminium
+f0 = 0.25
 n_x = 100
 n_y = 100
-x = np.linspace(-longueur/2, longueur/2, n_x)
-y = np.linspace(-largeur/2, largeur/2, n_y)
-x0 = 0
-y0 = 0
-k = 98.8 # Valeur de diffusivité thermique pour l'Aluminium
-dt = 0.01 #s
+amplitude = 200     # [k] Température au centre
 
+delta_x = longueur / n_x
+delta_y = largeur / n_y
+dt = f0 * np.power(delta_x,2) / f0
 
-xx, yy = creer_grille(longueur, largeur, n_x, n_y)
-temp = calcul_intial(x0,y0, xx, yy, 200, 0.1)
-RHS = calcul_RHS(temp, longueur, largeur, x0, y0, xx, yy, k, dt)
-nouveau_temp = calcul_T(RHS,temp,dt,longueur,largeur)
+x = np.arange(-longueur/2, longueur/2,delta_x)
+y = np.arange(-longueur/2, longueur/2,delta_y)
+xx, yy = creer_grille(longueur, largeur, delta_x, delta_y)
+
+temp_simu = 1# s
+boucle_tempo = np.arange(0, temp_simu, dt)
+#import pdb; pdb.set_trace()
+list_of_events = []
+
+# temp est le meshgrid sur lequel toutes les températures sont reportée à un instant t
+"""temp = calcul_intial(x0, y0, xx, yy, amplitude, 0.1)
+list_of_events.append(temp)
 import pdb; pdb.set_trace()
+for counter in range(len(boucle_tempo)):
+    RHS = calcul_RHS(temp, n_x, n_y, k, delta_x, delta_y)
+    nouveau_temp = calcul_T(RHS, temp, dt, n_x, n_y)
+    temp = nouveau_temp
+    list_of_events.append(nouveau_temp)"""
+grille1 = creer_grille(1,1,0.5,0.5)
+grille2 = grille1
 
+print(grille1)
+print(grille2)
+temp = calcul_intial(x0, y0, xx, yy, amplitude, 0.1)
 #afficher_grid(x, y, temp)
+RHS = creer_grille(longueur, largeur, delta_x, delta_y)
+for i in range(1000):
+    RHS = calcul_RHS(RHS,temp,longueur, largeur, k, delta_x, delta_y)
+    nouveau_temp = calcul_T(RHS, temp, dt, n_x, n_y)
+    temp = nouveau_temp
+
+afficher_grid(x, y, temp)
 
