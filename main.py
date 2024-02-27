@@ -16,7 +16,7 @@ def surchauffe_initiale(x0, y0, A, sigma, n_x, n_y):
 
     return delta_temp
 
-def afficher_grille(longueur, largeur, temperature):
+def afficher_grille(longueur, largeur, temperature,titre):
     h = plt.contourf(longueur, largeur, temperature, cmap='hot')
     plt.axis('scaled')
     plt.colorbar()
@@ -24,6 +24,7 @@ def afficher_grille(longueur, largeur, temperature):
     plt.pause(3)
     plt.close()
     plt.clf()
+    plt.title(titre)
 def enregistrer_grille_jpeg(longueur, largeur, temperature, numero):
     h = plt.contourf(longueur, largeur, temperature,cmap='hot')
     plt.axis('scaled')
@@ -103,17 +104,6 @@ x = np.arange(0, longueur,delta_x)
 y = np.arange(0, longueur,delta_y)
 
 xx,yy = creer_grille(longueur, largeur,delta_x,delta_y)
-#import pdb; pdb.set_trace()
-surchauffe = surchauffe_initiale(x0, y0, amplitude, sigma, n_x, n_y)
-RHS = np.zeros(shape=(n_x+1, n_y+1,int(temps_simulation/dt)), dtype=float)
-temperature = np.ndarray(shape=(n_x+1, n_y+1,int(temps_simulation/dt)), dtype=float)
-temperature[:,:,0] =surchauffe+T_zero
-afficher_grille(x, y, temperature[:,:,0])
-#enregistrer_grille_jpeg(x, y,temperature[:,:,0] , numero)
-pas= 0
-# temps apres lequelafficher état de laplaque
-temps_affiche = 120
-
 
 print("Visualisation de la répartition de chaleur\nLe matériau utilisé est l'aluminium !")
 
@@ -128,18 +118,31 @@ x0 = float(input("Position longitudinale du point chaud [m] : "))
 y0 = float(input("Position laterale du point chaud [m] : "))
 
 print("\nDéfinissez les paramètres de simulation :")
-n_x = int(float("Nombre de points en x : "))
+n_x = int(input("Nombre de points en x : "))
 n_y = int(input("Nombre de points en y : "))
-temps_affiche = float(input("Temps de simulation [s] : "))
+temps_simulation = float(input("Temps de simulation [s] : "))
+temps_affiche = float(input("Temps de l'affichage [s] : "))
+
+surchauffe = surchauffe_initiale(x0, y0, amplitude, sigma, n_x, n_y)
+RHS = np.zeros(shape=(n_x+1, n_y+1,int(temps_simulation/dt)), dtype=float)
+temperature = np.ndarray(shape=(n_x+1, n_y+1,int(temps_simulation/dt)), dtype=float)
+temperature[:,:,0] = surchauffe + T_zero
+afficher_grille(x, y, temperature[:,:,0])
+
+pas= 0
+# temps apres lequel afficher état de la plaque
+temps_affiche = 120
 
 
-"""while pas*dt< temps_affiche:
+
+
+
+while pas*dt< temps_affiche:
 
     RHS = calcul_RHS(RHS,temperature, n_x, n_y,delta_x,delta_y, k,pas)
     temperature[:,:,pas+1] = temperature[:,:,pas] + dt*RHS[:,:,0]
 
     #import pdb; pdb.set_trace()
-    pas +=1"""
+    pas +=1
 
-
-afficher_grille(x, y,temperature[:,:,pas-1])
+afficher_grille(x, y,temperature[:,:,pas-1],"Temperature finale")
