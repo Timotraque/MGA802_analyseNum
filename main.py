@@ -9,8 +9,7 @@ def creer_grille(longueur, largeur, delta_x, delta_y):
 
     return xx,yy
 
-
-def surchauffe_initiale(x0, y0, xx, yy, A, sigma, n_x, n_y):
+def surchauffe_initiale(x0, y0, A, sigma, n_x, n_y):
     delta_temp = np.ndarray(shape=(n_x+1,n_y+1), dtype=float)
     delta_temp = A * np.exp(-(np.power(xx - x0, 2)/(2 * np.power(sigma,2)) +
                               np.power(yy - y0, 2)/(2 * np.power(sigma, 2))))
@@ -22,7 +21,9 @@ def afficher_grille(longueur, largeur, temperature):
     plt.axis('scaled')
     plt.colorbar()
     plt.show()
-
+    plt.pause(3)
+    plt.close()
+    plt.clf()
 def enregistrer_grille_jpeg(longueur, largeur, temperature, numero):
     h = plt.contourf(longueur, largeur, temperature,cmap='hot')
     plt.axis('scaled')
@@ -30,32 +31,26 @@ def enregistrer_grille_jpeg(longueur, largeur, temperature, numero):
     nom_fichier = f"Temperature_{numero}.jpeg"
     plt.savefig(nom_fichier,)
 
-def calcul_RHS(RHS, temperature, longueur, largeur, k, delta_x, delta_y):
-    # On suppose que delta_x = delta_y
-    # Pour avoir la même forme et le même type de variables
 
+def calcul_RHS(RHS, temperature, n_x, n_y, delta_x, delta_y, k, pas):
     # Aux limites du domaine le RHS vaut 0
-    RHS[0, :] = 0
-    RHS[:, largeur - 1] = 0
-    RHS[:, 0] = 0
-    RHS[:, longueur - 1] = 0
+    RHS[0, :, pas] = 0
+    RHS[:, n_y, pas] = 0
+    RHS[:, 0, pas] = 0
+    RHS[n_x, :, pas] = 0
 
-    # Parcours toute la grille
-    for x in range(1, int(longueur / delta_x) - 1):
-        for y in range(1, int(largeur / delta_y) - 1):
-            # Calcul le nouvel RHS
-            RHS[x, y] = k * (((temperature[x + 1, y] - 2 * temperature[x, y] + temperature[x - 1, y]) / (
-                np.power(delta_x, 2))) + ((temperature[x, y + 1] - 2 * temperature[x, y] + temperature[x, y - 1]) / (
-                np.power(delta_y, 2))))
+    # Calcul le nouvel RHS
+    # import pdb; pdb.set_trace()
+    RHS[1:n_x - 1, 1:n_y - 1, pas] = k * (((temperature[2:n_x, 1:n_y - 1, pas] -
+                                            2 * temperature[1:n_x - 1, 1:n_y - 1, pas] + temperature[0:n_x - 2,
+                                                                                         1:n_y - 1, pas]) / (
+                                               np.power(delta_x, 2))) +
+                                          ((temperature[1:n_x - 1, 2:n_y, pas] - 2 * temperature[1:n_x - 1, 1:n_y - 1,
+                                                                                     pas] +
+                                            temperature[1:n_x - 1, 0:n_y - 2, pas]) / (np.power(delta_y, 2))))
 
-            if RHS[x, y] < 1:
-                RHS[x, y] = 0
-
-    # Force les limites a nouveau
-    RHS[0, :] = 0
-    RHS[:, largeur - 1] = 0
-    RHS[:, 0] = 0
-    RHS[:, longueur - 1] = 0
+    # Remplacer les valeur RHS <1 par des zeros
+    RHS[RHS < 1] = 0
 
     # Renvoie une grille contenant tous les RHS
 
@@ -83,21 +78,21 @@ k = 98.8 * 10**(-6)
 T_zero = 300
 
 # temps total de simulation [s]
-temps_simulation = 40
+temps_simulation = 600
 
 longueur = 1    #[m]
 largeur = 1     #[m]
 sigma = 0.05
-n_x=8
-n_y=8
+n_x=80
+n_y=80
 x0=0.5
 y0=0.5
 # [k] Amplitude de la surchauffe au centre"""
-amplitude = 200
+amplitude = 400
 
 #facteur de relaxation de fourrier
 f0 = 0.25
-numero = 0
+pas = 0
 delta_x = longueur / (n_x+1)
 delta_y = largeur / (n_y+1)
 dt = min((f0 * np.power(delta_x,2) / k ), (f0 * np.power(delta_y,2) / k))
@@ -108,20 +103,23 @@ x = np.arange(0, longueur,delta_x)
 y = np.arange(0, longueur,delta_y)
 
 xx,yy = creer_grille(longueur, largeur,delta_x,delta_y)
-
 #import pdb; pdb.set_trace()
-surchauffe = surchauffe_initiale(x0, y0, xx, yy, amplitude, sigma, n_x, n_y)
-
-RHS = np.ndarray(shape=(n_x+1, n_y+1,int(temps_simulation/dt)), dtype=float)
+surchauffe = surchauffe_initiale(x0, y0, amplitude, sigma, n_x, n_y)
+RHS = np.zeros(shape=(n_x+1, n_y+1,int(temps_simulation/dt)), dtype=float)
 temperature = np.ndarray(shape=(n_x+1, n_y+1,int(temps_simulation/dt)), dtype=float)
 temperature[:,:,0] =surchauffe+T_zero
+afficher_grille(x, y, temperature[:,:,0])
+#enregistrer_grille_jpeg(x, y,temperature[:,:,0] , numero)
+pas= 0
+# temps apres lequelafficher état de laplaque
+temps_affiche = 120
+while pas*dt< temps_affiche:
 
-"""
-for i in range(1000):
-    RHS = calcul_RHS(RHS, temp, longueur, largeur, k, delta_x, delta_y)
-    nouveau_temp = calcul_T(RHS, temp, dt, longueur, largeur, delta_x, delta_y)
-    temp = nouveau_temp
-    import pdb;
+    RHS = calcul_RHS(RHS,temperature, n_x, n_y,delta_x,delta_y, k,pas)
+    temperature[:,:,pas+1] = temperature[:,:,pas] + dt*RHS[:,:,0]
 
-    pdb.set_trace()"""
+    #import pdb; pdb.set_trace()
+    pas +=1
 
+
+afficher_grille(x, y,temperature[:,:,pas-1])
