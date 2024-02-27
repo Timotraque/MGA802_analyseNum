@@ -1,7 +1,7 @@
 # Fichier principal du projet B
 import numpy as np
 import matplotlib.pyplot as plt
-
+import time
 
 def creer_grille(longueur, largeur, delta_x, delta_y):
     x = np.arange(0, longueur, delta_x)
@@ -98,6 +98,7 @@ n_x = int(input("Nombre de points en x : "))
 n_y = int(input("Nombre de points en y : "))
 temps_simulation = float(input("Temps de simulation [s] : "))
 temps_affiche = float(input("Temps de l'affichage [s] : "))
+temps_affiche = temps_affiche - 10
 
 delta_x = longueur / (n_x+1)
 delta_y = largeur / (n_y+1)
@@ -110,6 +111,9 @@ f0 = 0.25
 
 # [m²/s] Diffusivité thermique pour l'Aluminium
 k = 98.8 * 10**(-6)
+
+# Lancement du chrono de simulation
+tsimu_start=time.perf_counter()
 
 dt = min((f0 * np.power(delta_x,2) / k ), (f0 * np.power(delta_y,2) / k))
 xx, yy = creer_grille(longueur, largeur,delta_x,delta_y)
@@ -131,10 +135,17 @@ afficher_grille(x, y, temperature[:,:,0],"Temperature initiale")
 pas = 0
 while pas*dt < temps_affiche:
 
-    RHS = calcul_RHS(RHS,temperature, n_x, n_y,delta_x,delta_y, k,pas)
-    temperature[:, :, pas+1] = temperature[:,:,pas] + dt*RHS[:,:,0]
+    RHS = calcul_RHS(RHS, temperature, n_x, n_y, delta_x, delta_y, k, pas)
+    temperature[:, :, pas+1] = temperature[:, :, pas] + dt*RHS[:, :, 0]
 
     #import pdb; pdb.set_trace()
     pas +=1
 
+temp_min = temperature[:, :, pas-1].min()
+temp_max = temperature[:, :, pas-1].max()
+temp_mean = temperature[:, :, pas-1].mean()
+
 afficher_grille(x, y,temperature[:,:,pas-1],"Temperature finale")
+
+print(f"En fin de simulation :\nLa température minimale vaut {temp_min} K\nLa température maximale vaut {temp_max} K\nLa température moyenne est {temp_mean} K")
+print("Le temps de simulation est de {:.2} s".format(time.perf_counter()-tsimu_start))
