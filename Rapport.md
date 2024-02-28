@@ -42,5 +42,28 @@ rapide du résultat est obtenue sans un grand nombre de calculs grâce à la bib
 
 ## Equations de chaleur
 ### Méthodologie
+La simulation thermique nécessite d'ordinaire de nombreuses équations pour parvenir à recréer fidèlement les phénomènes en jeu
+lors d'évènements brutaux ou spontanés. La librairie NumPy est ici utilisée pour valider son utilisation dans un contexte plus sévère.
+plusieurs fonctions sont nécessaires, notamment pour la génération de la grille de calcul, la définition de la solution initiale,
+ l'avancement temporel ou la visualisation de la distribution de la température. La grille de température est une matrice en 3 dimensions,
+une latérale, une longitudinale et une troisième temporelle.  
+
+``temperature = np.ndarray(shape=(n_x+1, n_y+1, int(temps_simulation/dt)), dtype=float)``  
+
+La définition du pas temporel est un élement important de toute simulation par différence finie. Ainsi le pas temporel est
+dans ce programme défini par l'équation ci-dessous.  
+<img src="equation.png" alt="descriptive text" style=" max-width: 60%; height: auto;" />  
+Où F0 = 0.25 et où le pas longitudinal est définis par l'utilisateur à travers le nombre de points désirés sur la surface à simuler.  
+L'état initial de la plaque est donné par une répartition gaussienne de la température centrée autour du point de chauffe.
+A chaque itération temporelle, l'évolution de la température est calculée grâce au paramètre ```RHS``` en parcourant l'ensemble de la 
+grille de température, cette étape est réalisée grâce à la fonction ``calcul_RHS()`` ci-dessous :  
+``calcul_RHS(RHS, temperature, n_x, n_y, delta_x, delta_y, k, pas)``
+
+De plus, le programme doit enregistrer et analyser diverses grandeurs (minimum, moyenne et maximum de température) sur le
+domaine, ainsi que les normes du résidu pour évaluer la convergence du champ de température au cours du temps. Enfin,
+le temps de calcul est enregistré à l'aide du chronomètre de la libriarie ```time.perf_counter()``` pour évaluer 
+l'efficacité de la solution mise en œuvre.
+
+### Résultats
 
 
