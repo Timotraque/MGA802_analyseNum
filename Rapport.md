@@ -19,8 +19,10 @@ calculer l'erreur entre les deux méthodes.
 ### Résultats
 L'augmentation du nombre de rectangles sous la courbe tracée par la fonction polynomiale permet de réduire drastiquement 
 l'erreur qu'il existe entre cette méthode et l'intégration réalisée avec numpy :  
-``solve_integration_numpy(p1, p2, p3, p4, debut, fin, n)``  
-La Figure 1 permet  de visualiser l'importance d'une discrétisation suffisante pour garantir un résultat cohérent.
+
+``solve_integration_numpy(p1, p2, p3, p4, debut, fin, n)`` 
+
+La Figure 1 permet  de visualiser la convergeance des résultats et l'importance d'une discrétisation suffisante pour garantir un résultat cohérent.
 
 <img src="Figure_erreur.png" alt="descriptive text" style=" max-width: 80%; height: auto;" />
 <p style="text-align: center;">Figure 1 : Impact du nombre de rectangles sur l'erreur</p>
@@ -32,5 +34,13 @@ temps de calcul recquis par la bibliothèque NumPy pour résoudre la même équa
 
 <img src="Figure_temps_execution.png" alt="descriptive text" style=" max-width: 80%; height: auto;" />
 <p style="text-align: center;">Figure 2 : Impact du nombre de rectangles sur le temps de calcul</p>
+
+### Conclusion
+La performance de la bibliothèque NumPy pour le calcul numérique, en particulier lorsqu'elle est comparée à une 
+implémentation directe de méthodes numériques telles que la méthode des rectangles semble bien plus élevée. Ainsi, une convergeance
+rapide du résultat est obtenue sans un grand nombre de calculs grâce à la bibliothèque Numpy.  
+
+## Equations de chaleur
+### Méthodologie
 
 
