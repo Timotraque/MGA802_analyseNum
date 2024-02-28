@@ -65,5 +65,5 @@ le temps de calcul est enregistré à l'aide du chronomètre de la libriarie ```
 l'efficacité de la solution mise en œuvre.
 
 ### Résultats
-
+La répartition initiale de température peut être visualisée sur la Figure 3
 
