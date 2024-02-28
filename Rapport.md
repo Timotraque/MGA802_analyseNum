@@ -17,4 +17,20 @@ implémentant directement la méthode des rectangles et enfin à travers une ré
 calculer l'erreur entre les deux méthodes.
 
 ### Résultats
+L'augmentation du nombre de rectangles sous la courbe tracée par la fonction polynomiale permet de réduire drastiquement 
+l'erreur qu'il existe entre cette méthode et l'intégration réalisée avec numpy :  
+``solve_integration_numpy(p1, p2, p3, p4, debut, fin, n)``  
+La Figure 1 permet  de visualiser l'importance d'une discrétisation suffisante pour garantir un résultat cohérent.
+
+<img src="Figure_erreur.png" alt="descriptive text" style=" max-width: 80%; height: auto;" />
+<p style="text-align: center;">Figure 1 : Impact du nombre de rectangles sur l'erreur</p>
+
+La Figure 2 permet de constater le revers de l'augmentation arbitraire du nombre de rectangle, ceux-ci impliquant alors une augmentation
+trop importante du nombre de calculs et donc du temps de résolution. Il est pertinent de noter la relative stabilité du
+temps de calcul recquis par la bibliothèque NumPy pour résoudre la même équation.
+
+
+<img src="Figure_temps_execution.png" alt="descriptive text" style=" max-width: 80%; height: auto;" />
+<p style="text-align: center;">Figure 2 : Impact du nombre de rectangles sur le temps de calcul</p>
+
 
